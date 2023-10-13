@@ -11,6 +11,8 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var items: [Item]
+    @ObservedObject var hkManager = HealthKitManager();
+    
 
     var body: some View {
         NavigationSplitView {
@@ -37,6 +39,9 @@ struct ContentView: View {
         } detail: {
             Text("Select an item")
         }
+        .onAppear(perform: {
+            hkManager.requestAuthorization()
+        })
     }
 
     private func addItem() {

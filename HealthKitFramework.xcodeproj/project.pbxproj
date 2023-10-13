@@ -12,6 +12,7 @@
 		49E2278F2AD9801F003C6DB0 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E2278E2AD9801F003C6DB0 /* Item.swift */; };
 		49E227912AD98020003C6DB0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49E227902AD98020003C6DB0 /* Assets.xcassets */; };
 		49E227942AD98020003C6DB0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49E227932AD98020003C6DB0 /* Preview Assets.xcassets */; };
+		49E2279C2AD98042003C6DB0 /* HKmanager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E2279B2AD98042003C6DB0 /* HKmanager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +22,8 @@
 		49E2278E2AD9801F003C6DB0 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		49E227902AD98020003C6DB0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		49E227932AD98020003C6DB0 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		49E2279A2AD9802F003C6DB0 /* HealthKitFramework.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HealthKitFramework.entitlements; sourceTree = "<group>"; };
+		49E2279B2AD98042003C6DB0 /* HKmanager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HKmanager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,11 +56,13 @@
 		49E227892AD9801F003C6DB0 /* HealthKitFramework */ = {
 			isa = PBXGroup;
 			children = (
+				49E2279A2AD9802F003C6DB0 /* HealthKitFramework.entitlements */,
 				49E2278A2AD9801F003C6DB0 /* HealthKitFrameworkApp.swift */,
 				49E2278C2AD9801F003C6DB0 /* ContentView.swift */,
 				49E2278E2AD9801F003C6DB0 /* Item.swift */,
 				49E227902AD98020003C6DB0 /* Assets.xcassets */,
 				49E227922AD98020003C6DB0 /* Preview Content */,
+				49E2279B2AD98042003C6DB0 /* HKmanager.swift */,
 			);
 			path = HealthKitFramework;
 			sourceTree = "<group>";
@@ -140,6 +145,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49E2279C2AD98042003C6DB0 /* HKmanager.swift in Sources */,
 				49E2278D2AD9801F003C6DB0 /* ContentView.swift in Sources */,
 				49E2278F2AD9801F003C6DB0 /* Item.swift in Sources */,
 				49E2278B2AD9801F003C6DB0 /* HealthKitFrameworkApp.swift in Sources */,
@@ -273,6 +279,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HealthKitFramework/HealthKitFramework.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"HealthKitFramework/Preview Content\"";
@@ -302,6 +309,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HealthKitFramework/HealthKitFramework.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"HealthKitFramework/Preview Content\"";
