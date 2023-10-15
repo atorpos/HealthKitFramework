@@ -15,6 +15,8 @@ class HealthKitManager: ObservableObject {
     
     @Published var stepCount: [HKQuantitySample] = []
     private let os_log = OSLog(subsystem: "com.altawoz.healthtyout", category: "debugger")
+    @Published var HK_auth:Bool = false
+    let userdefault = UserDefaults.standard
     
     init() {
         requestAuthorization()
@@ -22,22 +24,25 @@ class HealthKitManager: ObservableObject {
     
     func requestAuthorization() {
         let healthStore = HKHealthStore()
-        
+        let workoutType = HKWorkoutType.workoutType()
         if HKHealthStore.isHealthDataAvailable() {
             let readType: Set<HKSampleType> = [HKSampleType.quantityType(forIdentifier: .stepCount)!,
                                                HKWorkoutType.workoutType(),
-                                               HKQuantityType.quantityType(forIdentifier: .heartRate)!
+                                               HKQuantityType.quantityType(forIdentifier: .heartRate)!,
+                                               HKQuantityType.quantityType(forIdentifier: .swimmingStrokeCount)!,
+                                               HKQuantityType.quantityType(forIdentifier: .distanceSwimming)!,
+                                               workoutType
             ]
-            
             healthStore.requestAuthorization(toShare: nil, read: readType) { [self] (success, error) in
                 if(success){
-                    fetchSwimData()
-                    self.get_item_to_file()
+                    userdefault.set(true, forKey: "HKGrant")
                 } else {
-                    
+                    userdefault.set(false, forKey: "HKGrant")
                 }
                 
             }
+        } else {
+            userdefault.set(false, forKey: "HKGrant")
         }
     }
     
@@ -46,12 +51,13 @@ class HealthKitManager: ObservableObject {
     }
     func fetchSwimData() {
         let workOutType = HKWorkoutType.workoutType()
-//        let healthScore = HKHealthStore()
+        let gen_healthScore = HKHealthStore()
         let calendar = Calendar.current
         let endDate = Date()
-//        let fs_queryGroup = DispatchGroup()
-        
-        let startDate = calendar.date(byAdding: .day, value: -3, to: endDate)
+        let fs_queryGroup = DispatchGroup()
+        let backgroundQueue = DispatchQueue(label: "com.altawoz.HealthKitFramework", qos: .background)
+        var sum_lapArray:[SumofSimeData] = []
+        let startDate = calendar.date(byAdding: .day, value: -7, to: endDate)
         
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictEndDate)
         
@@ -61,9 +67,11 @@ class HealthKitManager: ObservableObject {
                         
                         
                         for workout in workouts {
+                            let onelap_array = self.fetchSTIME(singleWodata: workout)
                             let wo_startDate = workout.startDate
                             let wo_endDate = workout.endDate
                             let activityType = workout.workoutActivityType.rawValue
+//                            let SWOP = workout.workoutActivities.
                             let totalEnergyBurned = workout.totalEnergyBurned
                             print("Start date \(wo_startDate); End date \(wo_endDate) Activity Type: \(activityType); Total Energy Burn \(String(describing: totalEnergyBurned))")
 //                                        let hearbut = workout.qu
@@ -75,15 +83,84 @@ class HealthKitManager: ObservableObject {
 //                                            }
 //                                        }
                             self.fetchWOHR(startdate: wo_startDate, enddate: wo_endDate)
-                            
+                            let one_activ_record = SumofSimeData(start_date: wo_startDate, total_time: wo_endDate.timeIntervalSince(startDate!), pre_lap_record: onelap_array)
+                            sum_lapArray.append(one_activ_record)
                         }
                     } else {
                         
                     }
+                    fs_queryGroup.leave()
                 }
-            healthStore.execute(query)
+        fs_queryGroup.enter()
+        backgroundQueue.async {
+            gen_healthScore.execute(query)
+            fs_queryGroup.wait()
+            self.transform_to_json(recordArray: sum_lapArray)
+        }
+        
+        
         
 //        let query = HKSampleQuery
+    }
+    
+    func fetchSTIME(singleWodata: HKWorkout) -> [SwimData] {
+        let SWLScore = HKHealthStore()
+        let queryGroup = DispatchGroup()
+        
+        let s_quantitySet: [HKQuantityType] = [HKQuantityType.quantityType(forIdentifier: .swimmingStrokeCount)!, HKQuantityType.quantityType(forIdentifier: .distanceSwimming)!]
+        var laptime = 0.0
+        var laptimeinms = 0.0
+        var stoke_count = 0.0
+        var one_lapArray: [SwimData] = []
+        if(singleWodata.workoutActivityType.rawValue != 46){
+            print("it is not swim")
+            return []
+        }
+        print("it is swim")
+        for s_quantityType in s_quantitySet {
+            let assoicatedSamplesQuery = HKSampleQuery(
+                sampleType: s_quantityType, predicate: HKQuery.predicateForObjects(from: singleWodata), limit: 0, sortDescriptors: nil) { (sq_query, sq_sample, sq_error) in
+                    if let swimLapSampe = sq_sample as? [HKQuantitySample] {
+                        print("can get laps")
+                        var lapcount = 0;
+                        for sample in swimLapSampe {
+                            if(s_quantityType.identifier == "HKQuantityTypeIdentifierSwimmingStrokeCount") {
+                                stoke_count = sample.quantity.doubleValue(for: HKUnit.count())
+                                print("\(s_quantityType.identifier): \(stoke_count)")
+                                lapcount = lapcount + 1
+                                laptimeinms = self.each_laptime(lapcount: lapcount, starttime: sample.startDate, endTime: sample.endDate)
+                                laptime = laptime + laptimeinms
+                                let swolf = self.swolf_cal(lapcount: lapcount, lap_pace: laptimeinms, lap_stroke: stoke_count)
+                                let lap_record = SwimData(lap: lapcount, StrokeCount: stoke_count, lap_time: laptimeinms, swolf: swolf)
+                                one_lapArray.append(lap_record)
+                            } else {
+                                continue
+                            }
+                        }
+                    } else {
+                        print("no laps \(String(describing: sq_error))")
+                    }
+                    queryGroup.leave()
+                }
+            queryGroup.enter()
+            SWLScore.execute(assoicatedSamplesQuery)
+            queryGroup.wait()
+        }
+        
+        print("Total time = \(laptime)")
+        return one_lapArray
+    }
+    
+    func each_laptime(lapcount: Int, starttime: Date, endTime: Date) -> Double {
+        let timeDiff = endTime.timeIntervalSince(starttime)
+        print("\(lapcount) lap time \(timeDiff)")
+        return timeDiff
+    }
+    
+    func swolf_cal(lapcount: Int, lap_pace: Double, lap_stroke: Double)-> Double {
+        let swolf = lap_pace + lap_stroke
+        return swolf
+        
     }
     
     func fetchWOHR(startdate: Date, enddate: Date ) {
@@ -120,6 +197,19 @@ class HealthKitManager: ObservableObject {
         
         print("the start date \(startdate) and end date \(enddate) and the total count is \(totalCount), with totalHD \(totalHB)")
         
+    }
+    
+    func transform_to_json(recordArray: [SumofSimeData]){
+        do {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            let jsonData = try encoder.encode(recordArray)
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                print(jsonString)
+            }
+        } catch {
+            print("Error encoding to JSON: \(error)")
+        }
     }
     
     func get_item_to_file() {

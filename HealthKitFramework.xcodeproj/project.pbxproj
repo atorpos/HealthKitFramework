@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		490602DB2ADB68AA00D8799F /* swimdata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490602DA2ADB68AA00D8799F /* swimdata.swift */; };
+		497A76DA2ADA2EFA0050D1EB /* Reachability in Frameworks */ = {isa = PBXBuildFile; productRef = 497A76D92ADA2EFA0050D1EB /* Reachability */; };
+		49A3717E2AD9842C0009C780 /* ApiConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49A3717D2AD9842C0009C780 /* ApiConnection.swift */; };
 		49E2278B2AD9801F003C6DB0 /* HealthKitFrameworkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E2278A2AD9801F003C6DB0 /* HealthKitFrameworkApp.swift */; };
 		49E2278D2AD9801F003C6DB0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E2278C2AD9801F003C6DB0 /* ContentView.swift */; };
 		49E2278F2AD9801F003C6DB0 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E2278E2AD9801F003C6DB0 /* Item.swift */; };
@@ -16,6 +19,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		490602DA2ADB68AA00D8799F /* swimdata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = swimdata.swift; sourceTree = "<group>"; };
+		49A3717D2AD9842C0009C780 /* ApiConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiConnection.swift; sourceTree = "<group>"; };
 		49E227872AD9801F003C6DB0 /* HealthKitFramework.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthKitFramework.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		49E2278A2AD9801F003C6DB0 /* HealthKitFrameworkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitFrameworkApp.swift; sourceTree = "<group>"; };
 		49E2278C2AD9801F003C6DB0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -31,6 +36,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				497A76DA2ADA2EFA0050D1EB /* Reachability in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -40,6 +46,7 @@
 		49E2277E2AD9801F003C6DB0 = {
 			isa = PBXGroup;
 			children = (
+				490602DA2ADB68AA00D8799F /* swimdata.swift */,
 				49E227892AD9801F003C6DB0 /* HealthKitFramework */,
 				49E227882AD9801F003C6DB0 /* Products */,
 			);
@@ -63,6 +70,7 @@
 				49E227902AD98020003C6DB0 /* Assets.xcassets */,
 				49E227922AD98020003C6DB0 /* Preview Content */,
 				49E2279B2AD98042003C6DB0 /* HKmanager.swift */,
+				49A3717D2AD9842C0009C780 /* ApiConnection.swift */,
 			);
 			path = HealthKitFramework;
 			sourceTree = "<group>";
@@ -91,6 +99,9 @@
 			dependencies = (
 			);
 			name = HealthKitFramework;
+			packageProductDependencies = (
+				497A76D92ADA2EFA0050D1EB /* Reachability */,
+			);
 			productName = HealthKitFramework;
 			productReference = 49E227872AD9801F003C6DB0 /* HealthKitFramework.app */;
 			productType = "com.apple.product-type.application";
@@ -119,6 +130,9 @@
 				Base,
 			);
 			mainGroup = 49E2277E2AD9801F003C6DB0;
+			packageReferences = (
+				497A76D82ADA2EFA0050D1EB /* XCRemoteSwiftPackageReference "Reachability" */,
+			);
 			productRefGroup = 49E227882AD9801F003C6DB0 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -146,9 +160,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				49E2279C2AD98042003C6DB0 /* HKmanager.swift in Sources */,
+				49A3717E2AD9842C0009C780 /* ApiConnection.swift in Sources */,
 				49E2278D2AD9801F003C6DB0 /* ContentView.swift in Sources */,
 				49E2278F2AD9801F003C6DB0 /* Item.swift in Sources */,
 				49E2278B2AD9801F003C6DB0 /* HealthKitFrameworkApp.swift in Sources */,
+				490602DB2ADB68AA00D8799F /* swimdata.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,6 +302,7 @@
 				DEVELOPMENT_TEAM = U8EGEYDRW9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "We need access to your step count data to provide health and fitness information.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -316,6 +333,7 @@
 				DEVELOPMENT_TEAM = U8EGEYDRW9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "We need access to your step count data to provide health and fitness information.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -356,6 +374,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		497A76D82ADA2EFA0050D1EB /* XCRemoteSwiftPackageReference "Reachability" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ashleymills/Reachability.swift";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		497A76D92ADA2EFA0050D1EB /* Reachability */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 497A76D82ADA2EFA0050D1EB /* XCRemoteSwiftPackageReference "Reachability" */;
+			productName = Reachability;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 49E2277F2AD9801F003C6DB0 /* Project object */;
 }

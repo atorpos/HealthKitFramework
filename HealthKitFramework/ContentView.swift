@@ -39,9 +39,6 @@ struct ContentView: View {
         } detail: {
             Text("Select an item")
         }
-        .onAppear(perform: {
-            hkManager.requestAuthorization()
-        })
     }
 
     private func addItem() {
