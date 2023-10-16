@@ -46,4 +46,32 @@ class ApiConnection {
         
     }
     
+    func submitActivity(sm_data: Data) {
+        
+        let url = URL(string: "https://s.awoz.co/receive_json.php")!
+        
+        var request = URLRequest(url: url)
+        
+        request.httpMethod = "POST"
+        
+        request.httpBody = sm_data
+        
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let session = URLSession.shared
+        
+        let task = session.dataTask(with: request){ (data, response, error) in
+            if let error = error {
+                print("Error: \(error)")
+            } else if let data = data, let respnose = response as? HTTPURLResponse {
+                print("Response status code: \(String(describing: response))")
+                if let responseString = String(data: data, encoding: .utf8) {
+                    print("REspnose Data: \(responseString)")
+                }
+            }
+            
+        }
+        task.resume()
+    }
+    
 }

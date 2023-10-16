@@ -57,7 +57,8 @@ class HealthKitManager: ObservableObject {
         let fs_queryGroup = DispatchGroup()
         let backgroundQueue = DispatchQueue(label: "com.altawoz.HealthKitFramework", qos: .background)
         var sum_lapArray:[SumofSimeData] = []
-        let startDate = calendar.date(byAdding: .day, value: -7, to: endDate)
+        let startDate = calendar.date(byAdding: .day, value: -1, to: endDate)
+        var pool_lenght:Int = 0;
         
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictEndDate)
         
@@ -72,18 +73,29 @@ class HealthKitManager: ObservableObject {
                             let wo_endDate = workout.endDate
                             let activityType = workout.workoutActivityType.rawValue
 //                            let SWOP = workout.workoutActivities.
-                            let totalEnergyBurned = workout.totalEnergyBurned
-                            print("Start date \(wo_startDate); End date \(wo_endDate) Activity Type: \(activityType); Total Energy Burn \(String(describing: totalEnergyBurned))")
-//                                        let hearbut = workout.qu
-//                                        os.os_log("The log %@", totalEnergyBurned ?? "nil")
-//                                        if let associatedSamples = workout.workoutEvents {
-//                                            for sample in associatedSamples {
-////                                                print("Sample Type: \(sample)")
-////                                                print("Sample Value: \(sample.value)")
-//                                            }
-//                                        }
-                            self.fetchWOHR(startdate: wo_startDate, enddate: wo_endDate)
-                            let one_activ_record = SumofSimeData(start_date: wo_startDate, total_time: wo_endDate.timeIntervalSince(startDate!), pre_lap_record: onelap_array)
+                            let totalEnergyBurned = workout.totalEnergyBurned?.doubleValue(for: HKUnit.kilocalorie())
+                            
+                            //total distance
+                            let totalDistance = workout.totalDistance?.doubleValue(for: HKUnit.meter())
+                            
+//                            print("the meta \(workout)")
+                            if let metadata = workout.metadata {
+                                if (metadata[HKMetadataKeyWeatherTemperature] != nil) {
+//                                    let temp_wo = metadata[HKMetadataKeyWeatherTemperature].doubleValue(for: HKUnit.degreeFahrenheit());
+//                                    let valueType = type(of: temp_wo)
+//                                    print("value type \(temp_wo.doubleValue(for: HKUnit.degreeFahrenheit()))")
+                                }
+                                
+                            }
+                                
+//                            print("Start date \(wo_startDate); End date \(wo_endDate) Activity Type: \(activityType); Total Energy Burn \(String(describing: totalEnergyBurned)); Total Distance \(totalDistance ?? 0.0)")
+                            let wo_HR = self.fetchWOHR(startdate: wo_startDate, enddate: wo_endDate)
+                            print("no of laps \(onelap_array.count)")
+                            if (totalDistance != nil && onelap_array.count > 0) {
+                                pool_lenght = Int(totalDistance!)/onelap_array.count
+                            }
+                            
+                            let one_activ_record = SumofSimeData(start_date: wo_startDate.timeIntervalSince1970, total_time: wo_endDate.timeIntervalSince1970, total_distance: totalDistance!, total_kcal: totalEnergyBurned ?? 0.0, length_lap: pool_lenght, pre_lap_record: onelap_array, HR_data: wo_HR)
                             sum_lapArray.append(one_activ_record)
                         }
                     } else {
@@ -116,7 +128,7 @@ class HealthKitManager: ObservableObject {
             print("it is not swim")
             return []
         }
-        print("it is swim")
+//        print("it is swim")
         for s_quantityType in s_quantitySet {
             let assoicatedSamplesQuery = HKSampleQuery(
                 sampleType: s_quantityType, predicate: HKQuery.predicateForObjects(from: singleWodata), limit: 0, sortDescriptors: nil) { (sq_query, sq_sample, sq_error) in
@@ -126,6 +138,8 @@ class HealthKitManager: ObservableObject {
                         for sample in swimLapSampe {
                             if(s_quantityType.identifier == "HKQuantityTypeIdentifierSwimmingStrokeCount") {
                                 stoke_count = sample.quantity.doubleValue(for: HKUnit.count())
+                                
+//                                let length_of_pool = sample.quantity.doubleValue(for: HKUnit.meter())
                                 print("\(s_quantityType.identifier): \(stoke_count)")
                                 lapcount = lapcount + 1
                                 laptimeinms = self.each_laptime(lapcount: lapcount, starttime: sample.startDate, endTime: sample.endDate)
@@ -163,11 +177,13 @@ class HealthKitManager: ObservableObject {
         
     }
     
-    func fetchWOHR(startdate: Date, enddate: Date ) {
+    func fetchWOHR(startdate: Date, enddate: Date ) -> HRData {
         let heartScore = HKHealthStore()
         var totalHB: Double = 0.0
         var totalCount: Int = 0
         let queryGroup = DispatchGroup()
+        var maxHB = 0.0
+        var minHB = 0.0
         
         let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate)!
         let predicate = HKQuery.predicateForSamples(withStart: startdate, end: enddate, options: .strictEndDate)
@@ -180,10 +196,19 @@ class HealthKitManager: ObservableObject {
             
             if let heartRateSamples = results as? [HKQuantitySample] {
                 
+                
                 for sample in heartRateSamples {
                     let heartRate = sample.quantity.doubleValue(for: HKUnit.count().unitDivided(by: HKUnit.minute()))
 //                    let sampleDate = sample.startDate
 //                    print("HR: \(heartRate) bpm, in time: \(sampleDate)")
+                    if(minHB == 0.0) {
+                        minHB = heartRate
+                    } else if (minHB != 0 && minHB > heartRate) {
+                        minHB = heartRate
+                    }
+                    if(maxHB < heartRate) {
+                        maxHB = heartRate
+                    }
                     totalCount += 1
                     totalHB += heartRate
                 }
@@ -194,8 +219,11 @@ class HealthKitManager: ObservableObject {
         queryGroup.enter()
         heartScore.execute(query)
         queryGroup.wait()
+        let HR_data  = HRData(min_HR: minHB, max_HR: maxHB, total_HR: totalHB, total_CT: totalCount)
         
-        print("the start date \(startdate) and end date \(enddate) and the total count is \(totalCount), with totalHD \(totalHB)")
+        print("the start date \(startdate) and end date \(enddate) and the total count is \(totalCount), with totalHD \(totalHB), with minHD \(minHB), with highHB \(maxHB)")
+        
+        return HR_data
         
     }
     
@@ -207,6 +235,8 @@ class HealthKitManager: ObservableObject {
             if let jsonString = String(data: jsonData, encoding: .utf8) {
                 print(jsonString)
             }
+            let url_submit = ApiConnection.shared
+            url_submit.submitActivity(sm_data: jsonData)
         } catch {
             print("Error encoding to JSON: \(error)")
         }

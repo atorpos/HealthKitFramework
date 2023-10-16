@@ -16,8 +16,19 @@ struct SwimData: Codable {
     
 }
 
+struct HRData: Codable {
+    let min_HR: Double
+    let max_HR: Double
+    let total_HR: Double
+    let total_CT: Int
+}
+
 struct SumofSimeData: Codable {
-    let start_date: Date
+    let start_date: Double
     let total_time: Double
+    let total_distance: Double
+    let total_kcal: Double
+    let length_lap: Int
     let pre_lap_record: [SwimData]
+    let HR_data: HRData
 }
