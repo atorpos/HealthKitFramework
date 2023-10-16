@@ -10,6 +10,11 @@ import SwiftData
 
 @main
 struct HealthKitFrameworkApp: App {
+    
+    let networkManage = ApiConnection.shared
+    let hkManager = HealthKitManager()
+    @State private var HKauthor:Bool = false;
+    let userDefault = UserDefaults.standard
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -26,6 +31,22 @@ struct HealthKitFrameworkApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onAppear {
+                    if networkManage.isNetworkAvailable(){
+                        print("network connected")
+                    } else {
+                        print("network not connected")
+                    }
+                }
+                .onAppear(perform: {
+                    hkManager.requestAuthorization()
+                    if(userDefault.bool(forKey: "HKGrant")){
+                        print("granted")
+                        hkManager.fetchSwimData()
+                    } else {
+                        print("not granted")
+                    }
+                })
         }
         .modelContainer(sharedModelContainer)
     }
